@@ -1,17 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Static Template</title>
+    <style>
+      .result-box {
+        width: 600px;
+        min-height: 200px;
+        border: 3px solid grey;
+        padding: 10px;
+        border-radius: 8px;
+        word-wrap: break-word;
+      }
+      #loading {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>
+      Quick Authentication Validation!
+    </h1>
+    <div id="loading">Try to Loading MSA Info...</div>
+    <div id="ms-auth-button"></div>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
-</head>
+    <h2>
+      Will print the MSA user info/Error Message below to display what we can
+      get from QuickAuth
+    </h2>
+    <div id="resultBox" class="result-box"></div>
+  </body>
+  <script
+    async
+    defer
+    src="https://edge-auth.microsoft.com/js/ms_auth_client.min.js"
+  ></script>
+  <script>
+    const resultBoxDom = document.getElementById("resultBox");
+    const errorDetailsDom = document.getElementById("errorDetails");
+    const loadingDom = document.getElementById("loading");
 
-<body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
+    function quickAuthCallback(signInAccountInfo, signInErrorInfo) {
+      if (!signInAccountInfo) {
+        // Sign in failed. signInErrorInfo will be non-null.
+        const errorCode = signInErrorInfo.errorCode; // Short string.
+        const errorMessage = signInErrorInfo.errorMessage; // Longer string.
 
+        resultBoxDom.innerText = `sign in failed: errorCode: ${errorCode}, errorMessage: ${errorMessage}`;
+        return;
+      }
+      // Sign-in succeeded. Use signInAccountInfo in sign in/up logic.
+      const authLoginButtonDom = document.getElementById("ms-auth-button");
+      authLoginButtonDom.remove();
+      loadingDom.style.display = "block";
+      getCurrentAccountCallback(signInAccountInfo);
+    }
+
+    function getCurrentAccountCallback(signInAccountInfo) {
+      if (!signInAccountInfo) {
+        loadingDom.style.display = "none";
+        ms.auth.renderSignInButton(
+          document.getElementById("ms-auth-button"),
+          {} // Using default options.
+        );
+        return;
+      }
+      ms.auth.cancel();
+      loadingDom.innerText = "You already signed ~";
+      resultBoxDom.innerText = JSON.stringify(
+        signInAccountInfo,
+        (key, value) => {
+          if (key === "photoUrl") return `${value.slice(0, 30)}...`;
+          return value;
+        },
+        4
+      );
+    }
+
+    function quickAuthInitial() {
+      const result = ms.auth.initialize({
+        client_id: "a8c9daf2-592a-426d-92e1-90bc326a66f7",
+        callback: "quickAuthCallback",
+        login_uri: "https://gentle-moss-0fd233110.3.azurestaticapps.net/blank.html"
+      });
+      if (result.result != "success") {
+        // Initialization failed.
+        errorDetailsDom.innerText = `ms.auth.initialize failed: ${result}`;
+      }
+    }
+
+    window.onload = function () {
+      // Initial
+      quickAuthInitial();
+      // Judge If we can get the Signed account
+      ms.auth.startGetCurrentAccount(getCurrentAccountCallback);
+    };
+  </script>
 </html>
