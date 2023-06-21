@@ -70,7 +70,7 @@
       <div id="resultBox" class="result-box"></div>
     </div>
     <div id="credit-card-container">
-      What should I contains for this part?
+      Credit Card Page
     </div>
   </body>
   <script
@@ -89,6 +89,8 @@
 
     function triggerLogin() {
       controlTargetPartVisible("quickAuth");
+      // Judge If we can get the Signed account
+      ms.auth.startGetCurrentAccount(getCurrentAccountCallback);
     }
 
     function controlTargetPartVisible(part) {
@@ -165,9 +167,7 @@
     window.onload = function () {
       // Initial
       quickAuthInitial();
-      controlTargetPartVisible("subscription");
-      // Judge If we can get the Signed account
-      ms.auth.startGetCurrentAccount(getCurrentAccountCallback);
+      controlTargetPartVisible("creditCard");
     };
   </script>
 </html>
