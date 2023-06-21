@@ -17,20 +17,61 @@
       #loading {
         color: red;
       }
+      #subscription-container > div {
+        width: 200px;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        border: 2px solid #ccc;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        border-radius: 4px;
+        background: #rgb(250 233 245);
+      }
+
+      #subscription-container > div > button {
+        background-color: blue;
+        color: white;
+        border: 0;
+        height: 34px;
+        line-height: 24px;
+        width: 60%;
+        border-radius: 17px;
+        cursor: pointer;
+      }
+
+      #subscription-container,
+      #quickAuth-container,
+      #credit-card-container {
+        display: none;
+      }
     </style>
   </head>
   <body>
-    <h1>
-      Quick Authentication Validation!
-    </h1>
-    <div id="loading">Try to Loading MSA Info...</div>
-    <div id="ms-auth-button"></div>
+    <div id="subscription-container">
+      <h1>Become a member today!</h1>
+      <div>
+        <span>95$</span>
+        <button onclick="triggerLogin()">Subscribe</button>
+      </div>
+    </div>
+    <div id="quickAuth-container">
+      <h1>
+        Quick Authentication Validation!
+      </h1>
+      <div id="loading">Try to Loading MSA Info...</div>
+      <div id="ms-auth-button"></div>
 
-    <h2>
-      Will print the MSA user info/Error Message below to display what we can
-      get from QuickAuth
-    </h2>
-    <div id="resultBox" class="result-box"></div>
+      <h2>
+        Will print the MSA user info/Error Message below to display what we can
+        get from QuickAuth
+      </h2>
+      <div id="resultBox" class="result-box"></div>
+    </div>
+    <div id="credit-card-container">
+      What should I contains for this part?
+    </div>
   </body>
   <script
     async
@@ -41,6 +82,33 @@
     const resultBoxDom = document.getElementById("resultBox");
     const errorDetailsDom = document.getElementById("errorDetails");
     const loadingDom = document.getElementById("loading");
+
+    const subscriptionDom = document.getElementById("subscription-container");
+    const quickAuthDom = document.getElementById("quickAuth-container");
+    const creditCardDom = document.getElementById("credit-card-container");
+
+    function triggerLogin() {
+      controlTargetPartVisible("quickAuth");
+    }
+
+    function controlTargetPartVisible(part) {
+      subscriptionDom.style.display = "none";
+      quickAuthDom.style.display = "none";
+      creditCardDom.style.display = "none";
+      switch (part) {
+        case "subscription":
+          subscriptionDom.style.display = "block";
+          return;
+        case "quickAuth":
+          quickAuthDom.style.display = "block";
+          return;
+        case "creditCard":
+          creditCardDom.style.display = "block";
+          return;
+        default:
+          return;
+      }
+    }
 
     function quickAuthCallback(signInAccountInfo, signInErrorInfo) {
       if (!signInAccountInfo) {
@@ -77,13 +145,16 @@
         },
         4
       );
+      setTimeout(() => {
+        controlTargetPartVisible("creditCard");
+      }, 3000);
     }
 
     function quickAuthInitial() {
       const result = ms.auth.initialize({
         client_id: "a8c9daf2-592a-426d-92e1-90bc326a66f7",
         callback: "quickAuthCallback",
-        login_uri: "https://gentle-moss-0fd233110.3.azurestaticapps.net/blank.html"
+        login_uri: "https://w6p6gx.csb.app/blank.html"
       });
       if (result.result != "success") {
         // Initialization failed.
@@ -94,6 +165,7 @@
     window.onload = function () {
       // Initial
       quickAuthInitial();
+      controlTargetPartVisible("subscription");
       // Judge If we can get the Signed account
       ms.auth.startGetCurrentAccount(getCurrentAccountCallback);
     };
