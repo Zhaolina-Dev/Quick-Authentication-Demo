@@ -30,7 +30,7 @@
         background: #rgb(250 233 245);
       }
 
-      #subscription-container > div > button {
+      button {
         background-color: blue;
         color: white;
         border: 0;
@@ -68,6 +68,7 @@
         get from QuickAuth
       </h2>
       <div id="resultBox" class="result-box"></div>
+      <button onclick="continueProcess()">Continue Subscribe Process</button>
     </div>
     <div id="credit-card-container">
       Credit Card Page
@@ -147,16 +148,18 @@
         },
         4
       );
-      setTimeout(() => {
-        controlTargetPartVisible("creditCard");
-      }, 3000);
+    }
+
+    function continueProcess() {
+      controlTargetPartVisible("creditCard");
     }
 
     function quickAuthInitial() {
       const result = ms.auth.initialize({
         client_id: "a8c9daf2-592a-426d-92e1-90bc326a66f7",
         callback: "quickAuthCallback",
-        login_uri: "https://gentle-moss-0fd233110.3.azurestaticapps.net/blank.html"
+        login_uri: "https://gentle-moss-0fd233110.3.azurestaticapps.net/blank.html",
+        auto_prompt: "false"
       });
       if (result.result != "success") {
         // Initialization failed.
